@@ -26,7 +26,6 @@
       - automake 
       - build-essential 
       - libass-dev 
-      - libgpac-dev
       - libtheora-dev 
       - libtool 
       - libvorbis-dev 
@@ -34,6 +33,9 @@
       - texi2html 
       - zlib1g-dev
       - libmp3lame-dev
+      - cmake
+      - mercurial
+
 
 # Git
 
@@ -67,6 +69,13 @@
          dest={{ source_dir }}/opus
          accept_hostkey=yes
 
+# Hg
+
+  - name: clone latest libx265
+    hg: repo=https://bitbucket.org/multicoreware/x265
+         dest={{ source_dir }}/x265
+         revision=stable purge=yes
+
 
 # Compiling
 
@@ -89,6 +98,17 @@
       creates: "{{ bin_dir }}/x264"
     with_items:
       - ./configure --bindir={{ bin_dir }} --enable-static
+      - make -j {{ansible_processor_cores}}
+      - make install
+      - make distclean
+
+  - name: compile x265
+    command: "{{ item }}"
+    args:
+      chdir: "{{ source_dir }}/x265/"
+      creates: "{{ bin_dir }}/x265"
+    with_items:
+      - cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="{{ lib_dir }}/.." -DENABLE_SHARED:bool=off source
       - make -j {{ansible_processor_cores}}
       - make install
       - make distclean
@@ -134,7 +154,7 @@
       chdir: "{{ source_dir }}/ffmpeg" 
       creates: "{{ bin_dir }}/ffmpeg"
     with_items:
-      - ./configure --bindir={{ bin_dir }} --extra-libs=-ldl --enable-gpl --enable-libass --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-nonfree
+      - ./configure --bindir={{ bin_dir }} --extra-libs=-ldl --pkg-config-flags="--static" --enable-gpl --enable-libass --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
       - make -j {{ansible_processor_cores}}
       - make install
       - make distclean

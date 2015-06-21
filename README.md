@@ -1,6 +1,11 @@
 ansible-ffmpeg-build
 ====================
 
+
+### 2015-06-21:
+
+Added Support for x265.
+
 ### 2014-09-18:
 
 I've updated this playbook to work with [Ansible 1.7.1](http://www.ansible.com/blog/page/9). Recently, I've started using Docker for the system this was being applied to. Find the Dockerfile and resulting image below.
